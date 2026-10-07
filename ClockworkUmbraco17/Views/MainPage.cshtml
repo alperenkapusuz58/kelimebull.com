@@ -13,14 +13,14 @@
     var wotdLabel = Umbraco.GetDictionaryValue("Common.GununKelimesi");
     var englishCulture = System.Globalization.CultureInfo.GetCultureInfo("en");
 
+    // Bağlamı en baştan "en" olarak değiştiriyoruz ki servis de İngilizce arasın.
+    var originalVariationContext = VariationContextAccessor.VariationContext;
+    VariationContextAccessor.VariationContext = new VariationContext("en");
+
     string? wordOfDayWord = null;
     string? wordOfDayUrl = null;
     string? wordOfDayTranslation = null;
     bool hasWordOfDay = false;
-
-    // Bağlamı en baştan "en" olarak değiştiriyoruz ki servis de İngilizce arasın.
-    var originalVariationContext = VariationContextAccessor.VariationContext;
-    VariationContextAccessor.VariationContext = new VariationContext("en");
 
     try
     {
@@ -39,6 +39,7 @@
         // İşlem bitince bağlamı orijinal (kullanıcının o anki) kültürüne geri döndürüyoruz.
         VariationContextAccessor.VariationContext = originalVariationContext;
     }
+
 }
 
 <style>
