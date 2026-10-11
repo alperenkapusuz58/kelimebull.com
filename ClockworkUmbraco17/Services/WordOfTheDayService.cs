@@ -4,6 +4,8 @@ using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Web.Common.PublishedModels;
 using Umbraco.Extensions;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace ClockworkUmbraco.Services;
 
@@ -55,13 +57,21 @@ public class WordOfTheDayService : IWordOfTheDayService
 
         // 2) Atanmýþ kelime yoksa: alfabetik sýralý listede, gün sayýsýna göre döngü
         var ordered = headwordNodes
-            .OrderBy(node => node.Value<string>(WordAlias), StringComparer.Create(TrCulture, true))
+            .OrderBy(node => StableHash(node.Key))
             .ThenBy(node => node.Id)
             .ToList();
 
+
+        // Tarihe baðlý deterministik "rastgele" index
         var daysSinceEpoch = (int)(today - Epoch).TotalDays;
         var index = ((daysSinceEpoch % ordered.Count) + ordered.Count) % ordered.Count;
 
         return new Headword(ordered[index], _publishedValueFallback);
+    }
+
+    private static string StableHash(Guid key)
+    {
+        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(key.ToString("N")));
+        return Convert.ToHexString(bytes);
     }
 }
